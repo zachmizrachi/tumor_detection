@@ -61,44 +61,56 @@ struct ContentView: View {
         ).padding()
         
             .fileImporter(isPresented: $showFilePicker, allowedContentTypes: [.usdz]) { result in
-            // Get the URL of the USDZ picked by the user.
-            //
-            guard let url = try? result.get() else {
-                print("Unable to get URL")
-                return
-            }
-
-            Task {
-                // As the app is sandboxed, permission needs to be
-                // requested to access the file, as it's outside of
-                // the sandbox.
+                // Get the URL of the USDZ picked by the user.
                 //
-                if url.startAccessingSecurityScopedResource() {
-                    defer {
-                        url.stopAccessingSecurityScopedResource()
-                    }
-                    
-                    // Load the USDZ asynchronously.
+                guard let url = try? result.get() else {
+                    print("Unable to get URL")
+                    return
+                }
+                
+                Task {
+                    // As the app is sandboxed, permission needs to be
+                    // requested to access the file, as it's outside of
+                    // the sandbox.
                     //
-                    self.entity = try await Entity(contentsOf: url)
+                    if url.startAccessingSecurityScopedResource() {
+                        defer {
+                            url.stopAccessingSecurityScopedResource()
+                        }
+                        
+                        // Load the USDZ asynchronously.
+                        
+                        let loadedEntity = try await Entity(contentsOf: url)
+
+                        // Adjust the scale of the loaded entity to change its size.
+                        loadedEntity.transform.scale = SIMD3<Float>(x: 0.5, y: 0.5, z: 0.5) // Adjust the scale as needed
+//                        loadedEntity.position = SIMD3<Float>(x: 0.5, y: 0.5, z: 0.5)
+                        
+                        self.entity = loadedEntity
+                        
+                        
+                    }
                 }
             }
+        
         }
+    
+}
         
         
         
         
         
-        let files = fetchModelNames()
+//        let files = fetchModelNames()
         
-        Picker("Select Number", selection: $selectedNumber) {
-            ForEach(numbers, id: \.self) { number in
-                Text("\(number)")
-                    .font(.system(size: 100))
-            }
-            .scaleEffect(3)
-        }
-        .padding()
+//        Picker("Select Number", selection: $selectedNumber) {
+//            ForEach(numbers, id: \.self) { number in
+//                Text("\(number)")
+//                    .font(.system(size: 100))
+//            }
+//            .scaleEffect(3)
+//        }
+//        .padding()
 //        .onChange(of: selectedNumber) {
 //            print(selectedNumber)
 //            if selectedNumber >= 0 && selectedNumber < files.count {
@@ -111,52 +123,34 @@ struct ContentView: View {
 //            }
 ////            print($selectedNumber)
 //        }
-    }
+
     
-    func getDocumentsDirectory() -> URL {
-        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        let documentsDirectory = paths[0]
-        return documentsDirectory
-    }
+//    func getDocumentsDirectory() -> URL {
+//        let paths = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+//        let documentsDirectory = paths[0]
+//        return documentsDirectory
+//    }
     
     // Function to fetch model names from a directory
-    func fetchModelNames() -> [String] {
-        // Path to the directory containing models
+//    func fetchModelNames() -> [String] {
+//        var usdzFiles: [String] = []
+//        
 //        let fm = FileManager.default
-//        let path = "/Users/zachmizrachi/Desktop/DisplayUSDZ/Packages/RealityKitContent/Sources/RealityKitContent/RealityKitContent.rkassets"
-        var usdzFiles: [String] = []
-//        
+//        let path = Bundle.main.resourcePath!
+//        let mainBundle = Bundle.main
 //
+//        let docDir = getDocumentsDirectory()
+//        print("Looking here: ")
+//        print(mainBundle)
+//
+//       
 //        
-//        do {
-//            let items = try fm.contentsOfDirectory(atPath: path)
-//            
-//            // Filter only files with .usdz extension
-//            usdzFiles = items.filter { $0.hasSuffix(".usdz") }
-//        } catch {
-//            // failed to read directory – bad permissions, perhaps?
-//            print("Error reading directory:", error.localizedDescription)
-//        }
-        
-        
-        
-        let fm = FileManager.default
-        let path = Bundle.main.resourcePath!
-        let mainBundle = Bundle.main
-
-        let docDir = getDocumentsDirectory()
-        print("Looking here: ")
-        print(mainBundle)
-
-       
-        
-        let url = URL(fileURLWithPath: "/Users/zachmizrachi/Desktop/DisplayUSDZ/Packages/RealityKitContent/Sources/RealityKitContent/RealityKitContent.rkassets/")
-        let entity = try? Entity.load(contentsOf: url)
-        
-        return usdzFiles
-    }
+//        let url = URL(fileURLWithPath: "/Users/zachmizrachi/Desktop/DisplayUSDZ/Packages/RealityKitContent/Sources/RealityKitContent/RealityKitContent.rkassets/")
+//        let entity = try? Entity.load(contentsOf: url)
+//        
+//        return usdzFiles
+//    }
     
-}
 
 
 
